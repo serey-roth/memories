@@ -1,6 +1,7 @@
+import { Outlet } from "@remix-run/react";
 import { Navbar } from "~/components/Navbar";
 
-export default function Index() {
+export default function PostsRoute() {
     return (
         <div>
             <Navbar
@@ -15,6 +16,10 @@ export default function Index() {
                     to: "/"
                 },
             ]} />
+            <div className="flex justify-center
+            items-center w-screen">
+                <Outlet />
+            </div>
         </div>
-    );
+    )
 }
