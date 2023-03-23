@@ -2,12 +2,12 @@ import { Card } from "flowbite-react";
 
 interface PostProps {
     title: string;
-    description: string;
+    content: string;
 }
 
 export default function Post({
     title,
-    description
+    content
 }: PostProps) {
     return (
         <Card className="w-full m-0">
@@ -15,7 +15,7 @@ export default function Post({
                 {title}
             </h5>
             <p>
-                {description}
+                {content}
             </p>
         </Card>
     )
