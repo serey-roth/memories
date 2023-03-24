@@ -9,10 +9,7 @@ async function seed() {
     );
 }
 
-seed()
-.then(async () => {
-    await prisma.$disconnect();
-});
+seed();
 
 function getPosts() {
     return [
@@ -26,6 +23,7 @@ function getPosts() {
         },
         {
             title: "Trees",
+            content: `Why do trees seem suspicious on sunny days? Dunno, they're just a bit shady.`,
         },
         {
             title: "Skeletons",
@@ -37,6 +35,7 @@ function getPosts() {
         },
         {
             title: "Dinner",
+            content: `What did one plate say to the other plate? Dinner is on me!`,
         },
         {
             title: "Elevator",
