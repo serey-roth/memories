@@ -1,11 +1,11 @@
-import type { ActionArgs} from "@remix-run/node";
-import { redirect } from "@remix-run/node";
+import type { ActionArgs } from "@remix-run/node";
 import { Link, useActionData } from "@remix-run/react";
+import bcrypt from "bcryptjs";
 import { Button, Label, TextInput } from "flowbite-react";
 import { Navbar } from "~/components/Navbar";
 import { db } from "~/utils/db.server";
 import { badRequest } from "~/utils/request.server";
-import bcrypt from "bcryptjs";
+import { createUserSession } from "~/utils/session.server";
 
 const validateUsername = (username: string) => {
     if (username.length < 3) {
@@ -75,7 +75,7 @@ export const action = async ({ request }: ActionArgs) => {
         })
     }
 
-    return redirect("/posts");
+    return createUserSession(user.id, "/posts");
 }
 
 export default function LoginRoute() {
