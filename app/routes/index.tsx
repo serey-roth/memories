@@ -12,7 +12,7 @@ export default function Index() {
                 },
                 {
                     name: "Login",
-                    to: "/"
+                    to: "/login"
                 },
             ]} />
         </div>

@@ -13,7 +13,7 @@ export default function PostsRoute() {
                 },
                 {
                     name: "Login",
-                    to: "/"
+                    to: "/login"
                 },
             ]} />
             <div className="flex justify-center
