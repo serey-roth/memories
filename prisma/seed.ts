@@ -1,8 +1,16 @@
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
 async function seed() {
+    await prisma.user.create({
+        data: {
+            username: "bob",
+            email: "bob@bob.com",
+            password: bcrypt.hashSync("bobbob", 10)
+        }
+    });
     await Promise.all(
         getPosts().map(post => 
             prisma.post.create({ data: post }))
