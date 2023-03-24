@@ -17,7 +17,7 @@ export default function PostsRoute() {
                 },
             ]} />
             <div className="flex justify-center
-            items-center w-screen">
+            items-center w-screen mb-10">
                 <Outlet />
             </div>
         </div>
