@@ -1,10 +1,10 @@
-import type { ActionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
-import { useActionData } from "@remix-run/react";
-import { Button, Label, Textarea, TextInput } from "flowbite-react";
+import type { ActionArgs, LoaderArgs} from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
+import { Link, useActionData, useCatch } from "@remix-run/react";
+import { Alert, Button, Label, Textarea, TextInput } from "flowbite-react";
 import { db } from "~/utils/db.server";
 import { badRequest } from "~/utils/request.server";
-import { requireUserId } from "~/utils/session.server";
+import { getUserId, requireUserId } from "~/utils/session.server";
 
 const validatePostTitle = (title: string) => {
     if (title.length < 3) {
@@ -57,6 +57,14 @@ export const action = async ({ request }: ActionArgs) => {
     });
 
     return redirect("/posts");
+}
+
+export const loader = async ({ request }: LoaderArgs) => {
+    const userId = await getUserId(request);
+    if (!userId) {
+        throw new Response("Unauthorized", { status: 401 });
+    }
+    return json({});
 }
 
 export default function NewPostRoute() {
@@ -144,4 +152,35 @@ export default function NewPostRoute() {
             </form>
         </div>
     )
+}
+
+export function ErrorBoundary() {
+    return (
+        <Alert color="failure">
+            <div className="font-medium">
+                <p className="text-lg mb-4">
+                    Something went wrong trying to create a new post. Sorry about that.
+                </p>
+            </div>
+        </Alert>
+    )
+}
+
+export const CatchBoundary = () => {
+    const caught = useCatch();
+
+    if (caught.status === 401) {
+        return (
+            <Alert color="failure">
+                <div className="font-medium">
+                    <p className="text-lg mb-4">You must be logged in to create a post.</p>
+                    <Link 
+                    to="/login"
+                    className="underline underline-offset-2">Log in</Link>
+                </div>
+            </Alert>
+          );
+    }
+
+    throw new Error("Unhandled error: " + caught.status);
 }
