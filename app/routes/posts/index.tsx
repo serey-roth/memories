@@ -7,6 +7,16 @@ import { db } from "~/utils/db.server";
 export const loader = async () => {
     const posts = await db.post.findMany({
         take: 10,
+        select: { 
+            id: true, 
+            title: true, 
+            content: true,
+            creator: {
+                select: {
+                    username: true
+                }
+            }
+        },
         orderBy: { createdAt: "desc" }
     });
     return json({
@@ -35,8 +45,9 @@ export default function PostsIndexRoute() {
                {data.posts.map(post => (
                     <Post
                     key={post.id}
-                    title={post.title}
-                    content={post.content || ""} />
+                    title={post.title} 
+                    content={post.content}
+                    creator={post.creator} />
                ))}
             </div>
         </div>
