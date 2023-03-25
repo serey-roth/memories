@@ -26,23 +26,9 @@ export const loader = async ({ request }: LoaderArgs) => {
 export default function PostsRoute() {
     const data = useLoaderData<typeof loader>();
 
-    const isLoggedIn = !!data.user;
-    
     return (
         <div>
-            <Navbar
-            title="Memories"
-            links={[
-                {
-                    name: "Home",
-                    to: "/"
-                },
-                {
-                    name: isLoggedIn ? "Logout" : "Login",
-                    to: isLoggedIn ? "/logout" : "/login"
-                },
-            ]} 
-            user={data.user} />
+            <Navbar title="Memories" user={data.user} />
             <div className="flex justify-center
             items-center w-screen mb-10">
                 <Outlet />

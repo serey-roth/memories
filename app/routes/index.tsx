@@ -25,24 +25,10 @@ export const loader = async ({ request }: LoaderArgs) => {
 
 export default function Index() {
     const data = useLoaderData<typeof loader>();
-
-    const isLoggedIn = !!data.user;
-
+    
     return (
         <div>
-            <Navbar
-            title="Memories"
-            links={[
-                {
-                    name: "Home",
-                    to: "/"
-                },
-                {
-                    name: isLoggedIn ? "Logout" : "Login",
-                    to: isLoggedIn ? "/logout" : "/login"
-                },
-            ]} 
-            user={data.user}/>
+            <Navbar title="Memories" user={data.user}/>
         </div>
     );
 }
