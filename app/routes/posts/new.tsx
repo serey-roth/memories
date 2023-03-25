@@ -1,5 +1,5 @@
-import type { ActionArgs, LoaderArgs } from "@remix-run/node";
-import { redirect, json } from "@remix-run/node";
+import type { ActionArgs } from "@remix-run/node";
+import { redirect } from "@remix-run/node";
 import { useActionData } from "@remix-run/react";
 import { Button, Label, Textarea, TextInput } from "flowbite-react";
 import { db } from "~/utils/db.server";
@@ -50,7 +50,10 @@ export const action = async ({ request }: ActionArgs) => {
     }
 
     await db.post.create({
-        data: fields
+        data: {
+            ...fields,
+            creatorId: userId
+        }
     });
 
     return redirect("/posts");
