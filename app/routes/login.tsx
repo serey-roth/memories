@@ -1,6 +1,6 @@
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Link, useActionData, useLoaderData } from "@remix-run/react";
+import { Link, useActionData, useLoaderData, useSearchParams } from "@remix-run/react";
 import bcrypt from "bcryptjs";
 import { Button, Label, TextInput } from "flowbite-react";
 import { Navbar } from "~/components/Navbar";
@@ -13,10 +13,12 @@ export const action = async ({ request }: ActionArgs) => {
     const form = await request.formData();
     const username = form.get("username");
     const password = form.get("password");
+    const redirectTo = form.get("redirectTo") || "/posts";
 
     if (
         typeof username !== "string" ||
-        typeof password !== "string"
+        typeof password !== "string" ||
+        typeof redirectTo !== "string"
     ) {
         return badRequest({
             fieldErrors: null,
@@ -52,7 +54,7 @@ export const action = async ({ request }: ActionArgs) => {
         return badRequest({
             fieldErrors: null,
             fields,
-            formError: `Invalid credentials! Please try again.`
+            formError: "Invalid credentials! Please try again."
         });
     }
 
@@ -61,11 +63,11 @@ export const action = async ({ request }: ActionArgs) => {
         return badRequest({
             fieldErrors: null,
             fields,
-            formError: `Incorrect password! Please try again.`
+            formError: "Incorrect password! Please try again."
         })
     }
 
-    return createUserSession(user.id, "/posts");
+    return createUserSession(user.id, redirectTo);
 }
 
 export const loader = async ({ request }: LoaderArgs) => {
@@ -78,6 +80,12 @@ export const loader = async ({ request }: LoaderArgs) => {
 export default function LoginRoute() {
     const loaderData = useLoaderData<typeof loader>();
     const actionData = useActionData<typeof action>();
+    const [searchParams] = useSearchParams();
+
+    const redirectTo = searchParams.get("redirectTo");
+    const linkToRegister = "/register" + (redirectTo ? "?" + new URLSearchParams([
+        ["redirectTo", redirectTo]
+    ]) : "");
 
     return (
         <div>
@@ -97,6 +105,11 @@ export default function LoginRoute() {
                     </h1>
                     <form
                     method="post">
+                        <input 
+                        type="hidden"
+                        name="redirectTo"
+                        value={redirectTo ?? undefined}
+                        />
                         <div className="mb-2 block">
                             <Label
                             htmlFor="username"
@@ -168,7 +181,7 @@ export default function LoginRoute() {
                         <span className="mt-4 text-sm flex items-center">
                             Don't have an account yet? &nbsp;
                             <Link 
-                            to="/register"
+                            to={linkToRegister}
                             className="text-blue-600 hover:underline font-medium">
                                 Register
                             </Link>

@@ -1,9 +1,10 @@
-import type { ActionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
+import type { ActionArgs, LoaderArgs } from "@remix-run/node";
+import { redirect, json } from "@remix-run/node";
 import { useActionData } from "@remix-run/react";
 import { Button, Label, Textarea, TextInput } from "flowbite-react";
 import { db } from "~/utils/db.server";
 import { badRequest } from "~/utils/request.server";
+import { requireUserId } from "~/utils/session.server";
 
 const validatePostTitle = (title: string) => {
     if (title.length < 3) {
@@ -18,6 +19,7 @@ const validatePostContent = (content: string) => {
 }
 
 export const action = async ({ request }: ActionArgs) => {
+    const userId = await requireUserId(request);
     const form = await request.formData();
     const title = form.get("title");
     const content = form.get("content");
@@ -50,6 +52,7 @@ export const action = async ({ request }: ActionArgs) => {
     await db.post.create({
         data: fields
     });
+
     return redirect("/posts");
 }
 
