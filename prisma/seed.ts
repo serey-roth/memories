@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function seed() {
-    await prisma.user.create({
+    const bob = await prisma.user.create({
         data: {
             username: "bob",
             email: "bob@bob.com",
@@ -13,7 +13,12 @@ async function seed() {
     });
     await Promise.all(
         getPosts().map(post => 
-            prisma.post.create({ data: post }))
+            prisma.post.create({ 
+                data: {
+                    ...post,
+                    creatorId: bob.id
+                }
+            }))
     );
 }
 
