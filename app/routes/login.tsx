@@ -1,23 +1,13 @@
-import type { ActionArgs } from "@remix-run/node";
-import { Link, useActionData } from "@remix-run/react";
+import type { ActionArgs, LoaderArgs } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import { Link, useActionData, useLoaderData } from "@remix-run/react";
 import bcrypt from "bcryptjs";
 import { Button, Label, TextInput } from "flowbite-react";
 import { Navbar } from "~/components/Navbar";
 import { db } from "~/utils/db.server";
+import { validatePasswordLength, validateUsernameLength } from "~/utils/formValidation.server";
 import { badRequest } from "~/utils/request.server";
 import { createUserSession } from "~/utils/session.server";
-
-const validateUsername = (username: string) => {
-    if (username.length < 3) {
-        return "Username must be at least 3 characters long!"
-    }
-}
-
-const validatePassword = (password: string) => {
-    if (password.length < 6) {
-        return "Password must be at least 6 characters long!"
-    }
-}
 
 export const action = async ({ request }: ActionArgs) => {
     const form = await request.formData();
@@ -37,8 +27,8 @@ export const action = async ({ request }: ActionArgs) => {
 
     const fields = { username, password };
     const fieldErrors = {
-        username: validateUsername(username),
-        password: validatePassword(password),
+        username: validateUsernameLength(username),
+        password: validatePasswordLength(password),
     }
 
     if (Object.values(fieldErrors).some(Boolean)) {
@@ -78,7 +68,15 @@ export const action = async ({ request }: ActionArgs) => {
     return createUserSession(user.id, "/posts");
 }
 
+export const loader = async ({ request }: LoaderArgs) => {
+    const url = new URL(request.url);
+    const username = url.searchParams.get("username");
+
+    return json({ username });
+}
+
 export default function LoginRoute() {
+    const loaderData = useLoaderData<typeof loader>();
     const actionData = useActionData<typeof action>();
 
     return (
@@ -94,7 +92,9 @@ export default function LoginRoute() {
             <div className="flex justify-center
             items-center mb-10">
                 <div className="w-screen sm:max-w-[500px]">
-                    <h1 className="text-lg font-bold mb-4">Sign in to your account</h1>
+                    <h1 className="text-lg font-bold mb-4">
+                        Log in to your account
+                    </h1>
                     <form
                     method="post">
                         <div className="mb-2 block">
@@ -116,7 +116,7 @@ export default function LoginRoute() {
                                     </span>
                                 </>
                             ) : null}
-                            defaultValue={actionData?.fields?.username}
+                            defaultValue={loaderData.username || actionData?.fields?.username}
                             aria-invalid={
                                 Boolean(actionData?.fieldErrors?.username) || 
                                 undefined
@@ -163,7 +163,7 @@ export default function LoginRoute() {
                             </p>
                         ) : null}
                         <Button type="submit" className="mt-4 w-full">
-                            Login
+                            Log in
                         </Button>
                         <span className="mt-4 text-sm flex items-center">
                             Don't have an account yet? &nbsp;
