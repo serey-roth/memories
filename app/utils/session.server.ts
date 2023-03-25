@@ -9,7 +9,7 @@ if (!sessionSecret) {
     throw new Error("Session secret is missing!");
 }
 
-const storage = createCookieSessionStorage<SessionData>({
+export const storage = createCookieSessionStorage<SessionData>({
     cookie: {
         name: "remix-memories",
         secrets: [sessionSecret],
