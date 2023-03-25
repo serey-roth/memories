@@ -1,20 +1,13 @@
 import type { User } from "@prisma/client";
 import { Avatar, Navbar as FlowbiteNavbar } from "flowbite-react";
 
-type NavbarLink = {
-    name: string,
-    to: string
-}
-
 interface NavbarProps {
     title: string
-    links: NavbarLink[]
     user?: Pick<User, "username"> | null
 }
 
 export function Navbar({
     title,
-    links,
     user
 }: NavbarProps) {
     return (
@@ -27,13 +20,25 @@ export function Navbar({
         <FlowbiteNavbar.Toggle />
         <FlowbiteNavbar.Collapse>
             <div className="flex items-center gap-4">
-                {links.map(({ name, to }) => (
-                    <FlowbiteNavbar.Link 
-                    key={name}
-                    href={to}>
-                        {name}
+                <FlowbiteNavbar.Link href="/">
+                    Home
+                </FlowbiteNavbar.Link>
+                <FlowbiteNavbar.Link href="/posts">
+                    Posts
+                </FlowbiteNavbar.Link>
+                {user ? (
+                    <form method="post" action="/logout">
+                        <button 
+                        className="hover:text-blue-700"
+                        type="submit">
+                            Log out
+                        </button>
+                    </form>
+                ) : (
+                    <FlowbiteNavbar.Link href="/login">
+                        Log in
                     </FlowbiteNavbar.Link>
-                ))}
+                )}
                 {user ? (
                     <Avatar 
                     rounded={true}
