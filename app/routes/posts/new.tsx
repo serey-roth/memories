@@ -56,7 +56,7 @@ export const action = async ({ request }: ActionArgs) => {
         }
     });
 
-    return redirect("/posts");
+    return redirect("/posts?page=1");
 }
 
 export const loader = async ({ request }: LoaderArgs) => {

@@ -89,14 +89,7 @@ export default function LoginRoute() {
 
     return (
         <div>
-            <Navbar
-            title="Memories"
-            links={[
-                {
-                    name: "Home",
-                    to: "/"
-                }
-            ]} />
+            <Navbar title="Memories"/>
             <div className="flex justify-center
             items-center mb-10">
                 <div className="w-screen sm:max-w-[500px]">
