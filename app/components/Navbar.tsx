@@ -23,7 +23,7 @@ export function Navbar({
                 <FlowbiteNavbar.Link href="/">
                     Home
                 </FlowbiteNavbar.Link>
-                <FlowbiteNavbar.Link href="/posts">
+                <FlowbiteNavbar.Link href="/posts?page=1">
                     Posts
                 </FlowbiteNavbar.Link>
                 {user ? (
