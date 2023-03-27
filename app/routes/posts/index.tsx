@@ -1,51 +1,54 @@
 import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useCatch, useLoaderData, useSearchParams } from "@remix-run/react";
-import { Alert, Button, Pagination } from "flowbite-react";
+import { Button, Pagination } from "flowbite-react";
+import { ErrorWithOptionalContent } from "~/components/ErrorWithOptionalContent";
 import Post from "~/components/Post";
-import { db } from "~/utils/db.server";
+import { createBadRequestError } from "~/utils/error.server";
+import { getPaginatedPostsWithCreator, getTotalPages } from "~/utils/posts.server";
 import { getUserId } from "~/utils/session.server";
+
+const MIN_PAGE_NUMBER = 1;
+
+const renderNewPostButton = () => {
+    return (
+        <Link to="new">
+            <Button 
+            color="light" 
+            pill={true}
+            >
+                New Post
+            </Button>
+        </Link>
+    )
+}
 
 export const loader = async ({ request }: LoaderArgs) => {
     const user = await getUserId(request);
 
     const url = new URL(request.url);
-    const page = url.searchParams.get("page");
+    const pageParam = url.searchParams.get("page");
 
-    if (page && Number.parseInt(page, 10) < 1) {
-        throw new Response("Page number must be at least 1", {
-            status: 400
-        });
+    if (!pageParam) {
+        throw createBadRequestError(
+            "Page number is mandatory!"
+        );
     }
 
-    const totalPosts = await db.post.count();
-    const totalPages = Math.ceil(totalPosts / 10);
+    const pageNumber = Number.parseInt(pageParam, 10);
+    const totalPages = await getTotalPages();
 
-    if (page && Number.parseInt(page, 10) > totalPages) {
-        throw new Response("Page number must be at most " + totalPages, {
-            status: 400
-        });
+    if (pageNumber < MIN_PAGE_NUMBER || pageNumber > totalPages) {
+        throw createBadRequestError(
+            "Page number must be between 1 and " + totalPages
+        );
     }
 
-    const posts = await db.post.findMany({
-        take: 10,
-        skip: page ? (Number.parseInt(page, 10) - 1) * 10 : 0,
-        select: {
-            id: true, 
-            title: true, 
-            content: true,
-            creator: {
-                select: {
-                    username: true
-                }
-            }
-        },
-        orderBy: { createdAt: "desc" }
-    });
+    const posts = await getPaginatedPostsWithCreator(pageNumber);
 
     return json({
         posts,
-        currentPage: page ? Number.parseInt(page, 10) : 1,
+        currentPage: pageNumber,
         isLoggedIn: !!user,
         totalPages,
     });
@@ -69,19 +72,13 @@ export default function PostsIndexRoute() {
         className="flex flex-col w-screen sm:max-w-[500px]">
             <div className="flex items-center">
                 <h1 className="font-bold text-xl mr-auto">Posts</h1>
-                {isLoggedIn ? (<Link to="new">
-                    <Button 
-                    color="light" 
-                    pill={true}
-                    >
-                        New Post
-                    </Button>
-                </Link>) : null}
+                {isLoggedIn ? renderNewPostButton() : null}
             </div>
             <div className="flex flex-col mt-4 mb-2 gap-2">
                {posts.map(post => (
                     <Post
                     key={post.id}
+                    id={post.id}
                     title={post.title} 
                     content={post.content}
                     creator={post.creator} />
@@ -105,11 +102,7 @@ export const CatchBoundary = () => {
         return (
             <div className="w-screen sm:max-w-[500px]">
                 <h1 className="font-bold text-xl mr-auto mb-2">Posts</h1>
-                <Alert color="info">
-                    <div className="font-medium">
-                        <p className="text-lg">No links</p>
-                    </div>
-                </Alert>
+                <ErrorWithOptionalContent message="No posts" />
             </div>
         )
     }
