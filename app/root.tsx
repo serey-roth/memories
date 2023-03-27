@@ -8,11 +8,19 @@ import {
 } from "@remix-run/react";
 import globalStylesUrl from "~/styles/global.css";
 
-export const meta: MetaFunction = () => ({
-  charset: "utf-8",
-  title: "Memories",
-  viewport: "width=device-width,initial-scale=1",
-});
+export const meta: MetaFunction = () => {
+  const description = "Memories with Remix: Capture the moment!";
+  return {
+    charset: "utf-8",
+    description,
+    keywords: "Remix,memories",
+    "twitter:card": "summary_large_image",
+    "twitter:creator": "@remix_run",
+    "twitter:site": "@remix_run",
+    "twitter:title": "Memories",
+    "twitter:description": description,
+  };
+};
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: globalStylesUrl }
