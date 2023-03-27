@@ -1,12 +1,14 @@
-import type { ActionArgs} from "@remix-run/node";
+import type { ActionArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import { Link, useActionData } from "@remix-run/react";
 import bcrypt from "bcryptjs";
-import { Button, Label, TextInput } from "flowbite-react";
+import { Button } from "flowbite-react";
+import { FormInputWithLabel } from "~/components/FormInputWithLabel";
 import { Navbar } from "~/components/Navbar";
 import { db } from "~/utils/db.server";
 import { validateEmail, validatePasswordLength, validateUsernameLength } from "~/utils/formValidation.server";
 import { badRequest } from "~/utils/request.server";
+import { getUserWithoutPassword } from "~/utils/users.server";
 
 export const action = async ({ request }: ActionArgs) => {
     const form = await request.formData();
@@ -52,13 +54,7 @@ export const action = async ({ request }: ActionArgs) => {
         });
     }
 
-    const existingUser = await db.user.findUnique({
-        where: { username },
-        select: { 
-            id: true, 
-            username: true,
-        },
-    })
+    const existingUser = await getUserWithoutPassword({ username });
 
     if (existingUser) {
         return badRequest({
@@ -86,14 +82,7 @@ export default function LoginRoute() {
 
     return (
         <div>
-            <Navbar
-            title="Memories"
-            links={[
-                {
-                    name: "Home",
-                    to: "/"
-                }
-            ]} />
+            <Navbar title="Memories" />
             <div className="flex justify-center
             items-center mb-10">
                 <div className="w-screen sm:max-w-[500px]">
@@ -102,126 +91,37 @@ export default function LoginRoute() {
                     </h1>
                     <form
                     method="post">
-                        <div className="mb-2 block">
-                            <Label
-                            htmlFor="username"
-                            value="Username"
-                            color={actionData?.fieldErrors?.username ? "failure" : "gray"}
-                            />
-                            <TextInput 
+                        <FormInputWithLabel
                             id="username"
                             name="username"
-                            shadow={true}
-                            type="text"
-                            color={actionData?.fieldErrors?.username ? "failure" : "gray"}
-                            helperText={actionData?.fieldErrors?.username ? (
-                                <>
-                                    <span className="font-medium">
-                                        {actionData.fieldErrors.username}
-                                    </span>
-                                </>
-                            ) : null}
+                            label="Username"
                             defaultValue={actionData?.fields?.username}
-                            aria-invalid={
-                                Boolean(actionData?.fieldErrors?.username) || 
-                                undefined
-                            }
-                            aria-errormessage={
-                                actionData?.fieldErrors?.username
-                                ? "username-error"
-                                : undefined
-                            }/>
-                        </div>
-                        <div className="mb-2 block">
-                            <Label
-                            htmlFor="email"
-                            value="Email"
-                            color={actionData?.fieldErrors?.email ? "failure" : "gray"}
-                            />
-                            <TextInput 
+                            error={actionData?.fieldErrors?.username}
+                        />
+                        <FormInputWithLabel
                             id="email"
                             name="email"
-                            shadow={true}
+                            label="Email"
                             type="email"
-                            color={actionData?.fieldErrors?.email ? "failure" : "gray"}
-                            helperText={actionData?.fieldErrors?.email ? (
-                                <>
-                                    <span className="font-medium">
-                                        {actionData.fieldErrors.email}
-                                    </span>
-                                </>
-                            ) : null}
                             defaultValue={actionData?.fields?.email}
-                            aria-invalid={
-                                Boolean(actionData?.fieldErrors?.email) || 
-                                undefined
-                            }
-                            aria-errormessage={
-                                actionData?.fieldErrors?.email
-                                ? "email-error"
-                                : undefined
-                            }/>
-                        </div>
-                        <div className="mb-2 block">
-                            <Label
-                            htmlFor="password"
-                            value="Password"
-                            color={actionData?.fieldErrors?.password ? "failure" : "gray"}
-                            />
-                            <TextInput 
+                            error={actionData?.fieldErrors?.email}
+                        />
+                        <FormInputWithLabel
                             id="password"
                             name="password"
-                            shadow={true}
                             type="password"
-                            color={actionData?.fieldErrors?.password ? "failure" : "gray"}
-                            helperText={actionData?.fieldErrors?.password ? (
-                                <>
-                                    <span className="font-medium">
-                                        {actionData.fieldErrors.password}
-                                    </span>
-                                </>
-                            ) : null}
+                            label="Password"
                             defaultValue={actionData?.fields?.password}
-                            aria-invalid={
-                                Boolean(actionData?.fieldErrors?.password) || 
-                                undefined
-                            }
-                            aria-errormessage={
-                                actionData?.fieldErrors?.password
-                                ? "password-error"
-                                : undefined
-                            }/>
-                        </div>
-                        <div className="mb-2 block">
-                            <Label
-                            htmlFor="confirmPassword"
-                            value="Confirm Password"
-                            color={actionData?.fieldErrors?.confirmPassword ? "failure" : "gray"}
-                            />
-                            <TextInput 
+                            error={actionData?.fieldErrors?.password}
+                        />
+                        <FormInputWithLabel
                             id="confirmPassword"
                             name="confirmPassword"
-                            shadow={true}
                             type="password"
-                            color={actionData?.fieldErrors?.confirmPassword ? "failure" : "gray"}
-                            helperText={actionData?.fieldErrors?.confirmPassword ? (
-                                <>
-                                    <span className="font-medium">
-                                        {actionData.fieldErrors.confirmPassword}
-                                    </span>
-                                </>
-                            ) : null}
+                            label="Confirm Password"
                             defaultValue={actionData?.fields?.confirmPassword}
-                            aria-invalid={
-                                Boolean(actionData?.fieldErrors?.confirmPassword) || 
-                                undefined
-                            }
-                            aria-errormessage={
-                                actionData?.fieldErrors?.confirmPassword
-                                ? "confirm-password-error"
-                                : undefined
-                            }/>
-                        </div>
+                            error={actionData?.fieldErrors?.confirmPassword}
+                        />
                         {actionData?.formError ? (
                             <p className="font-medium mb-2 text-sm text-red-600">
                                 {actionData.formError}
