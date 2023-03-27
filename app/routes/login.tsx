@@ -2,12 +2,13 @@ import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useActionData, useLoaderData, useSearchParams } from "@remix-run/react";
 import bcrypt from "bcryptjs";
-import { Button, Label, TextInput } from "flowbite-react";
+import { Button } from "flowbite-react";
+import { FormInputWithLabel } from "~/components/FormInputWithLabel";
 import { Navbar } from "~/components/Navbar";
-import { db } from "~/utils/db.server";
 import { validatePasswordLength, validateUsernameLength } from "~/utils/formValidation.server";
 import { badRequest } from "~/utils/request.server";
 import { createUserSession } from "~/utils/session.server";
+import { getUserWithPassword } from "~/utils/users.server";
 
 export const action = async ({ request }: ActionArgs) => {
     const form = await request.formData();
@@ -41,14 +42,7 @@ export const action = async ({ request }: ActionArgs) => {
         });
     }
 
-    const user = await db.user.findUnique({
-        where: { username },
-        select: { 
-            id: true, 
-            username: true, 
-            password: true 
-        },
-    })
+    const user = await getUserWithPassword({ username });
 
     if (!user) {
         return badRequest({
@@ -77,15 +71,21 @@ export const loader = async ({ request }: LoaderArgs) => {
     return json({ username });
 }
 
+const createLinkToRegister = (redirectTo: string) => {
+    return "/register?" + new URLSearchParams([
+        ["redirectTo", redirectTo]
+    ]);
+}
+
 export default function LoginRoute() {
     const loaderData = useLoaderData<typeof loader>();
     const actionData = useActionData<typeof action>();
     const [searchParams] = useSearchParams();
 
     const redirectTo = searchParams.get("redirectTo");
-    const linkToRegister = "/register" + (redirectTo ? "?" + new URLSearchParams([
-        ["redirectTo", redirectTo]
-    ]) : "");
+    const linkToRegister = redirectTo ? 
+        createLinkToRegister(redirectTo) : 
+        "/register";
 
     return (
         <div>
@@ -103,66 +103,21 @@ export default function LoginRoute() {
                         name="redirectTo"
                         value={redirectTo ?? undefined}
                         />
-                        <div className="mb-2 block">
-                            <Label
-                            htmlFor="username"
-                            value="Username"
-                            color={actionData?.fieldErrors?.username ? "failure" : "gray"}
-                            />
-                            <TextInput 
+                        <FormInputWithLabel
                             id="username"
                             name="username"
-                            shadow={true}
-                            type="text"
-                            color={actionData?.fieldErrors?.username ? "failure" : "gray"}
-                            helperText={actionData?.fieldErrors?.username ? (
-                                <>
-                                    <span className="font-medium">
-                                        {actionData.fieldErrors.username}
-                                    </span>
-                                </>
-                            ) : null}
+                            label="Username"
                             defaultValue={loaderData.username || actionData?.fields?.username}
-                            aria-invalid={
-                                Boolean(actionData?.fieldErrors?.username) || 
-                                undefined
-                            }
-                            aria-errormessage={
-                                actionData?.fieldErrors?.username
-                                ? "username-error"
-                                : undefined
-                            }/>
-                        </div>
-                        <div className="mb-2 block">
-                            <Label
-                            htmlFor="password"
-                            value="Password"
-                            color={actionData?.fieldErrors?.password ? "failure" : "gray"}
-                            />
-                            <TextInput 
+                            error={actionData?.fieldErrors?.username}
+                        />
+                        <FormInputWithLabel
                             id="password"
                             name="password"
-                            shadow={true}
                             type="password"
-                            color={actionData?.fieldErrors?.password ? "failure" : "gray"}
-                            helperText={actionData?.fieldErrors?.password ? (
-                                <>
-                                    <span className="font-medium">
-                                        {actionData.fieldErrors.password}
-                                    </span>
-                                </>
-                            ) : null}
+                            label="Password"
                             defaultValue={actionData?.fields?.password}
-                            aria-invalid={
-                                Boolean(actionData?.fieldErrors?.password) || 
-                                undefined
-                            }
-                            aria-errormessage={
-                                actionData?.fieldErrors?.password
-                                ? "password-error"
-                                : undefined
-                            }/>
-                        </div>
+                            error={actionData?.fieldErrors?.password}
+                        />
                         {actionData?.formError ? (
                             <p className="font-medium mb-2 text-sm text-red-600">
                                 {actionData.formError}
