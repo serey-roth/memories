@@ -1,8 +1,12 @@
-import type { ActionArgs, LoaderArgs} from "@remix-run/node";
+import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Link, useActionData, useCatch } from "@remix-run/react";
-import { Alert, Button, Label, Textarea, TextInput } from "flowbite-react";
-import { db } from "~/utils/db.server";
+import { Button } from "flowbite-react";
+import { ErrorWithOptionalContent } from "~/components/ErrorWithOptionalContent";
+import { FormInputWithLabel } from "~/components/FormInputWithLabel";
+import { FormTextareaWithLabel } from "~/components/FormTextAreaWithLabel";
+import { createUnauthorizedError } from "~/utils/error.server";
+import { createPost } from "~/utils/posts.server";
 import { badRequest } from "~/utils/request.server";
 import { getUserId, requireUserId } from "~/utils/session.server";
 
@@ -49,12 +53,7 @@ export const action = async ({ request }: ActionArgs) => {
         });
     }
 
-    await db.post.create({
-        data: {
-            ...fields,
-            creatorId: userId
-        }
-    });
+    await createPost({ ...fields, creatorId: userId });
 
     return redirect("/posts?page=1");
 }
@@ -62,7 +61,7 @@ export const action = async ({ request }: ActionArgs) => {
 export const loader = async ({ request }: LoaderArgs) => {
     const userId = await getUserId(request);
     if (!userId) {
-        throw new Response("Unauthorized", { status: 401 });
+        throw createUnauthorizedError("Unauthorized!")
     }
     return json({});
 }
@@ -75,70 +74,22 @@ export default function NewPostRoute() {
         className="flex flex-col w-screen sm:max-w-[500px]">
             <form
             method="post">
-                <div className="mb-2 block">
-                    <Label
-                        htmlFor="title"
-                        value="Title" 
-                        color={actionData?.fieldErrors?.title ? "failure" : "gray"}/>
-                    <TextInput
-                        id="title"
-                        name="title"
-                        type="text"
-                        sizing="md"
-                        placeholder="Title"
-                        shadow={true}
-                        color={actionData?.fieldErrors?.title ? "failure" : "gray"}
-                        helperText={
-                            actionData?.fieldErrors?.title ? (
-                                <>
-                                    <span className="font-medium">
-                                        {actionData.fieldErrors.title}
-                                    </span>
-                                </>
-                            ) : null
-                        }
-                        defaultValue={actionData?.fields?.title}
-                        aria-invalid={
-                            Boolean(actionData?.fieldErrors?.title) || 
-                            undefined
-                        }
-                        aria-errormessage={
-                            actionData?.fieldErrors?.title
-                            ? "title-error"
-                            : undefined
-                        }/>
-                </div>
-                <div className="mb-2 block">
-                    <Label
-                        htmlFor="content"
-                        value="Content" 
-                        color={actionData?.fieldErrors?.content ? "failure" : "gray"}/>
-                    <Textarea
-                        id="content"
-                        name="content"
-                        placeholder="Write something for this post..."
-                        rows={4}
-                        color={actionData?.fieldErrors?.content ? "failure" : "gray"}
-                        helperText={
-                            actionData?.fieldErrors?.content ? (
-                                <>
-                                    <span className="font-medium">
-                                        {actionData.fieldErrors.content}
-                                    </span>
-                                </>
-                            ) : null
-                        }
-                        defaultValue={actionData?.fields?.content}
-                        aria-invalid={
-                            Boolean(actionData?.fieldErrors?.content) || 
-                            undefined
-                        }
-                        aria-errormessage={
-                            actionData?.fieldErrors?.content
-                            ? "content-error"
-                            : undefined
-                        }/>
-                </div>
+                <FormInputWithLabel
+                    id="title"
+                    name="title"
+                    label="Title"
+                    defaultValue={actionData?.fields?.title}
+                    error={actionData?.fieldErrors?.title}
+                />
+                <FormTextareaWithLabel
+                    id="content"
+                    name="content"
+                    label="Content"
+                    placeholder="Write something for this post..."
+                    rows={4}
+                    defaultValue={actionData?.fields?.content}
+                    error={actionData?.fieldErrors?.content}
+                />
                 {actionData?.formError ? (
                    <p
                    className="font-medium text-red-500"
@@ -156,13 +107,8 @@ export default function NewPostRoute() {
 
 export function ErrorBoundary() {
     return (
-        <Alert color="failure">
-            <div className="font-medium">
-                <p className="text-lg mb-4">
-                    Something went wrong trying to create a new post. Sorry about that.
-                </p>
-            </div>
-        </Alert>
+        <ErrorWithOptionalContent
+        message="Something went wrong trying to create a new post. Sorry about that." />
     )
 }
 
@@ -171,14 +117,14 @@ export const CatchBoundary = () => {
 
     if (caught.status === 401) {
         return (
-            <Alert color="failure">
-                <div className="font-medium">
-                    <p className="text-lg mb-4">You must be logged in to create a post.</p>
+            <div className="w-screen sm:max-w-[500px]">
+                <ErrorWithOptionalContent
+                message="You must be logged in to create a post.">
                     <Link 
                     to="/login"
                     className="underline underline-offset-2">Log in</Link>
-                </div>
-            </Alert>
+                </ErrorWithOptionalContent>
+            </div>
           );
     }
 
