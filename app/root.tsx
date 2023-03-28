@@ -4,7 +4,7 @@ import {
   LiveReload,
   Meta,
   Outlet,
-  Scripts, useCatch
+  Scripts, ScrollRestoration, useCatch
 } from "@remix-run/react";
 import globalStylesUrl from "~/styles/global.css";
 
@@ -43,6 +43,7 @@ function Document({
       <body>
         {children}
         <Scripts />
+        <ScrollRestoration getKey={(location) => location.pathname}/>
         <LiveReload />
       </body>
     </html>

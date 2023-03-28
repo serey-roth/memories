@@ -1,8 +1,9 @@
 import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Link, useCatch, useLoaderData, useSearchParams } from "@remix-run/react";
-import { Button, Pagination } from "flowbite-react";
+import { Button } from "flowbite-react";
 import { ErrorWithOptionalContent } from "~/components/ErrorWithOptionalContent";
+import { Pagination } from "~/components/Pagination";
 import Post from "~/components/Post";
 import { createBadRequestError } from "~/utils/error.server";
 import { getPaginatedPostsWithCreator, getTotalPages } from "~/utils/posts.server";
@@ -84,13 +85,15 @@ export default function PostsIndexRoute() {
                     creator={post.creator} />
                ))}
             </div>
-            <Pagination
-            layout="pagination"
-            currentPage={currentPage}
-            totalPages={totalPages}
-            showIcons={true}
-            onPageChange={handlePageChange}
-            />
+            <div className="w-full flex items-center justify-center">
+                <Pagination
+                layout="pagination"
+                currentPage={currentPage}
+                totalPages={totalPages}
+                showIcons={true}
+                onPageChange={handlePageChange}
+                />
+            </div>
         </div>
     )
 }
