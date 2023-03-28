@@ -1,5 +1,7 @@
 import { db } from "./db.server";
 
+const PAGE_COUNT = 5;
+
 export type CreatePostArgs = {
     creatorId: string,
     title: string,
@@ -18,14 +20,14 @@ export const createPost = async ({
     })
 }
 
-export const getTotalPages = async (pageCount: number = 10) => {
+export const getTotalPages = async (pageCount: number = PAGE_COUNT) => {
     const totalPosts = await db.post.count();
     return Math.ceil(totalPosts / pageCount);
 }
 
 export const getPaginatedPostsWithCreator = async (
     page: number, 
-    pageCount: number = 10
+    pageCount: number = PAGE_COUNT
 ) => {
     return await db.post.findMany({
         take: pageCount,
