@@ -8,6 +8,8 @@ export type CreatePostArgs = {
     content: string
 }
 
+export type UpdatePostArgs = Omit<CreatePostArgs, "creatorId">;
+
 export const createPost = async ({
     creatorId, title, content
 }: CreatePostArgs) => {
@@ -60,6 +62,13 @@ export const getPost = async (id: string | undefined) => {
 
 export const deletePost = async (id: string) => {
     return await db.post.delete({
+        where: { id }
+    });
+}
+
+export const updatePost = async (id: string, values: UpdatePostArgs) => {
+    return await db.post.update({
+        data: values,
         where: { id }
     });
 }
