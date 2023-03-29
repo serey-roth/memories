@@ -1,27 +1,12 @@
 import type { ActionArgs, LoaderArgs, MetaFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { useCatch, useLoaderData, useParams } from "@remix-run/react";
+import { Link, useCatch, useLoaderData, useParams } from "@remix-run/react";
 import { Button } from "flowbite-react";
+import { DeleteWithPopupModal } from "~/components/DeleteWithPopupModal";
 import { ErrorWithOptionalContent } from "~/components/ErrorWithOptionalContent";
 import { createForbiddenRequestError, createPostNotFoundError } from "~/utils/error.server";
 import { deletePost, getPost } from "~/utils/posts.server";
 import { requireUserId } from "~/utils/session.server";
-
-const renderDeleteButton = () => {
-    return (
-        <>
-        <form method="post">
-            <Button 
-            name="intent" 
-            type="submit" 
-            value="delete"
-            className="bg-red-500 w-full mt-4">
-                Delete
-            </Button>
-        </form>
-        </>
-    );
-}
 
 export const loader = async ({ params, request }: LoaderArgs) => {
     const userId = await requireUserId(request);
@@ -67,6 +52,14 @@ export const action = async ({ params, request }: ActionArgs) => {
     }
 }
 
+const EditLink = ({ id }: { id: string }) => (
+    <Link to={`/posts/edit/${id}`}>
+        <Button className="w-full">
+            Edit
+        </Button>
+    </Link>
+);
+
 export const meta: MetaFunction<typeof loader> = ({
     data,
 }) => {
@@ -103,7 +96,14 @@ export default function PostRoute() {
             <div className="flex flex-col mt-4 mb-2 gap-2">
                {data.post.content}
             </div>
-            {data.isOwner ? renderDeleteButton() : null}
+            {data.isOwner ? (
+                <div className="flex flex-col gap-2">
+                    <EditLink id={data.post.id} />
+                    {typeof window !== "undefined" ? (
+                        <DeleteWithPopupModal idToBeDeleted={data.post.id} />
+                    ) : null}
+                </div>
+            ) : null}
         </div>
     )
 }
