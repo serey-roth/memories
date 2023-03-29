@@ -1,5 +1,5 @@
 import { Link } from "@remix-run/react";
-import { Card } from "flowbite-react";
+import { Card, Avatar } from "flowbite-react";
 
 interface PostProps {
     id: string;
@@ -18,22 +18,25 @@ export default function Post({
 }: PostProps) {
     return (
         <Card className="w-full m-0">
+            <div className="flex items-center">
+                <Avatar
+                rounded={true}
+                placeholderInitials={creator.username.charAt(0)}
+                />
+                <h5 className="font-medium ml-2">
+                    {creator.username}
+                </h5>
+            </div>
             <div>
                 <Link to={`/posts/${id}`}>
                     <h5 className="font-bold text-lg">
                         {title}
                     </h5>
                 </Link>
-                <span className="flex items-center">
-                    by 
-                    <h5 className="font-medium ml-2">
-                        {creator.username}
-                    </h5>
-                </span>
+                <p>
+                    {content}
+                </p>
             </div>
-            <p>
-                {content}
-            </p>
         </Card>
     )
 }
