@@ -1,21 +1,26 @@
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Link, useActionData, useCatch } from "@remix-run/react";
+import { useActionData, useCatch, useLoaderData } from "@remix-run/react";
 import { Button } from "flowbite-react";
 import { ErrorWithOptionalContent } from "~/components/ErrorWithOptionalContent";
 import { FormInputWithLabel } from "~/components/FormInputWithLabel";
 import { FormTextareaWithLabel } from "~/components/FormTextareaWithLabel";
-import { createUnauthorizedError } from "~/utils/error.server";
-import { validatePostTitle, validatePostContent } from "~/utils/formValidation.server";
-import { createPost } from "~/utils/posts.server";
+import { createBadRequestError, createUnauthorizedError } from "~/utils/error.server";
+import { validatePostContent, validatePostTitle } from "~/utils/formValidation.server";
+import { getPost, updatePost } from "~/utils/posts.server";
 import { badRequest } from "~/utils/request.server";
 import { getUserId, requireUserId } from "~/utils/session.server";
 
-export const action = async ({ request }: ActionArgs) => {
-    const userId = await requireUserId(request);
+export const action = async ({ params, request }: ActionArgs) => {
+    await requireUserId(request);
+    const { postId } = params;
     const form = await request.formData();
     const title = form.get("title");
     const content = form.get("content");
+
+    if (!postId) {
+        throw createBadRequestError("The id is necessary for updating a post!");
+    }
 
     if (
         typeof title !== "string" ||
@@ -42,20 +47,25 @@ export const action = async ({ request }: ActionArgs) => {
         });
     }
 
-    await createPost({ ...fields, creatorId: userId });
+    await updatePost(postId, fields);
 
-    return redirect("/posts?page=1");
+    return redirect(`/posts/${postId}`);
 }
 
-export const loader = async ({ request }: LoaderArgs) => {
+export const loader = async ({ params, request }: LoaderArgs) => {
     const userId = await getUserId(request);
+
     if (!userId) {
         throw createUnauthorizedError("Unauthorized!")
     }
-    return json({});
+
+    const post = await getPost(params.postId);
+
+    return json({ post });
 }
 
 export default function NewPostRoute() {
+    const loaderData = useLoaderData<typeof loader>();
     const actionData = useActionData<typeof action>();
 
     return (
@@ -67,7 +77,7 @@ export default function NewPostRoute() {
                     id="title"
                     name="title"
                     label="Title"
-                    defaultValue={actionData?.fields?.title}
+                    defaultValue={loaderData.post?.title || actionData?.fields?.title}
                     error={actionData?.fieldErrors?.title}
                 />
                 <FormTextareaWithLabel
@@ -76,7 +86,7 @@ export default function NewPostRoute() {
                     label="Content"
                     placeholder="Write something for this post..."
                     rows={4}
-                    defaultValue={actionData?.fields?.content}
+                    defaultValue={loaderData.post?.content || actionData?.fields?.content}
                     error={actionData?.fieldErrors?.content}
                 />
                 {actionData?.formError ? (
@@ -87,7 +97,7 @@ export default function NewPostRoute() {
                    </p>
                 ): null}
                 <Button type="submit">
-                    Add
+                    Done
                 </Button>
             </form>
         </div>
@@ -104,14 +114,11 @@ export function ErrorBoundary() {
 export const CatchBoundary = () => {
     const caught = useCatch();
 
-    if (caught.status === 401) {
+    if (caught.status === 400) {
         return (
             <div className="w-screen sm:max-w-[500px]">
                 <ErrorWithOptionalContent
-                message="You must be logged in to create a post.">
-                    <Link 
-                    to="/login"
-                    className="underline underline-offset-2">Log in</Link>
+                message={caught.statusText}>
                 </ErrorWithOptionalContent>
             </div>
           );
