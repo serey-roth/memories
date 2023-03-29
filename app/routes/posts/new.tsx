@@ -4,23 +4,12 @@ import { Link, useActionData, useCatch } from "@remix-run/react";
 import { Button } from "flowbite-react";
 import { ErrorWithOptionalContent } from "~/components/ErrorWithOptionalContent";
 import { FormInputWithLabel } from "~/components/FormInputWithLabel";
-import { FormTextareaWithLabel } from "~/components/FormTextAreaWithLabel";
+import { FormTextareaWithLabel } from "~/components/FormTextareaWithLabel";
 import { createUnauthorizedError } from "~/utils/error.server";
+import { validatePostTitle, validatePostContent } from "~/utils/formValidation.server";
 import { createPost } from "~/utils/posts.server";
 import { badRequest } from "~/utils/request.server";
 import { getUserId, requireUserId } from "~/utils/session.server";
-
-const validatePostTitle = (title: string) => {
-    if (title.length < 3) {
-        return "A post's title must be at least 3 characters long."
-    }
-}
-
-const validatePostContent = (content: string) => {
-    if (content.length < 10) {
-        return "A post's content must be at least 10 characters long."
-    }
-}
 
 export const action = async ({ request }: ActionArgs) => {
     const userId = await requireUserId(request);
