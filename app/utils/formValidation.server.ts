@@ -16,3 +16,15 @@ export const validatePasswordLength = (password: string) => {
         return "Password must be at least 6 characters long!"
     }
 }
+
+export const validatePostTitle = (title: string) => {
+    if (title.length < 3) {
+        return "A post's title must be at least 3 characters long."
+    }
+}
+
+export const validatePostContent = (content: string) => {
+    if (content.length < 10) {
+        return "A post's content must be at least 10 characters long."
+    }
+}
