@@ -22,7 +22,7 @@ export default function PostsRoute() {
     const data = useLoaderData<typeof loader>();
 
     return (
-        <div>
+        <div className="bg-gradient-to-tr from-indigo-500/50 to-fuchsia-700">
             <Navbar title="Memories" user={data.user} />
             <div className="flex justify-center
             items-center w-screen mb-10">
