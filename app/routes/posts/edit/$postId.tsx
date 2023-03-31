@@ -1,10 +1,10 @@
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { useActionData, useCatch, useLoaderData } from "@remix-run/react";
-import { Button } from "flowbite-react";
+import { Form, useActionData, useCatch, useLoaderData, useNavigation } from "@remix-run/react";
 import { ErrorWithOptionalContent } from "~/components/ErrorWithOptionalContent";
 import { FormInputWithLabel } from "~/components/FormInputWithLabel";
 import { FormTextareaWithLabel } from "~/components/FormTextareaWithLabel";
+import { SubmitButton } from "~/components/SubmitButton";
 import { createBadRequestError, createUnauthorizedError } from "~/utils/error.server";
 import { validatePostContent, validatePostTitle } from "~/utils/formValidation.server";
 import { getPost, updatePost } from "~/utils/posts.server";
@@ -67,11 +67,12 @@ export const loader = async ({ params, request }: LoaderArgs) => {
 export default function NewPostRoute() {
     const loaderData = useLoaderData<typeof loader>();
     const actionData = useActionData<typeof action>();
-
+    const navigation = useNavigation();
+    
     return (
         <div
         className="flex flex-col w-screen sm:max-w-[500px]">
-            <form
+            <Form
             method="post">
                 <FormInputWithLabel
                     id="title"
@@ -96,10 +97,11 @@ export default function NewPostRoute() {
                        {actionData.formError}
                    </p>
                 ): null}
-                <Button type="submit">
+                <SubmitButton 
+                isSubmitting={navigation.state === "submitting"}>
                     Done
-                </Button>
-            </form>
+                </SubmitButton>
+            </Form>
         </div>
     )
 }

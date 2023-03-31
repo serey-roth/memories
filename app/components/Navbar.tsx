@@ -1,4 +1,5 @@
 import type { User } from "@prisma/client";
+import { Form } from "@remix-run/react";
 import { Avatar, Navbar as FlowbiteNavbar } from "flowbite-react";
 
 interface NavbarProps {
@@ -27,13 +28,13 @@ export function Navbar({
                     Posts
                 </FlowbiteNavbar.Link>
                 {user ? (
-                    <form method="post" action="/logout">
+                    <Form method="post" action="/logout">
                         <button 
                         className="hover:text-blue-700"
                         type="submit">
                             Log out
                         </button>
-                    </form>
+                    </Form>
                 ) : (
                     <FlowbiteNavbar.Link href="/login">
                         Log in

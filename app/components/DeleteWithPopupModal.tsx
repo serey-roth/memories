@@ -1,5 +1,7 @@
+import { Form, useNavigation } from "@remix-run/react";
 import { Button, Modal } from "flowbite-react";
 import { useToggle } from "~/utils/useToggle";
+import { SubmitButton } from "./SubmitButton";
 
 type DeleteWithPopupModalProps = {
     idToBeDeleted: string;
@@ -11,6 +13,7 @@ export const DeleteWithPopupModal = ({
     label = "Delete"
 }: DeleteWithPopupModalProps) => {
     const { toggleState, toggle } = useToggle();
+    const navigation = useNavigation();
 
     return (
         <>
@@ -34,18 +37,18 @@ export const DeleteWithPopupModal = ({
                         Are you sure you want to delete this item?
                     </h3>
                     <div className="flex justify-center gap-4">
-                    <form
+                    <Form
                     method="post"
                     action={`/posts/${idToBeDeleted}`}>
-                        <Button
+                        <SubmitButton
                             color="failure"
                             name="intent"
                             value="delete"
-                            type="submit"
+                            isSubmitting={navigation.state === "submitting"}
                         >
                             Yes, I'm sure
-                        </Button>
-                    </form>
+                        </SubmitButton>
+                    </Form>
                     <Button
                         color="gray"
                         onClick={toggle}
