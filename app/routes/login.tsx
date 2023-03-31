@@ -14,7 +14,7 @@ export const action = async ({ request }: ActionArgs) => {
     const form = await request.formData();
     const username = form.get("username");
     const password = form.get("password");
-    const redirectTo = form.get("redirectTo") || "/posts";
+    const redirectTo = form.get("redirectTo") || "/posts?page=1";
 
     if (
         typeof username !== "string" ||
