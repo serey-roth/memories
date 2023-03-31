@@ -1,10 +1,10 @@
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Form, Link, useActionData, useLoaderData, useSearchParams } from "@remix-run/react";
+import { Form, Link, useActionData, useLoaderData, useNavigation, useSearchParams } from "@remix-run/react";
 import bcrypt from "bcryptjs";
-import { Button } from "flowbite-react";
 import { FormInputWithLabel } from "~/components/FormInputWithLabel";
 import { Navbar } from "~/components/Navbar";
+import { SubmitButton } from "~/components/SubmitButton";
 import { validatePasswordLength, validateUsernameLength } from "~/utils/formValidation.server";
 import { badRequest } from "~/utils/request.server";
 import { createUserSession } from "~/utils/session.server";
@@ -81,6 +81,7 @@ export default function LoginRoute() {
     const loaderData = useLoaderData<typeof loader>();
     const actionData = useActionData<typeof action>();
     const [searchParams] = useSearchParams();
+    const navigation = useNavigation();
 
     const redirectTo = searchParams.get("redirectTo");
     const linkToRegister = redirectTo ? 
@@ -94,7 +95,9 @@ export default function LoginRoute() {
             items-center mb-10">
                 <div className="w-screen sm:max-w-[500px]">
                     <h1 className="text-lg font-bold mb-4">
-                        Log in to your account
+                        {navigation.state === "submitting" ? 
+                        `Logging in "${navigation.formData.get("username")}"` 
+                        : "Log in to your account"}
                     </h1>
                     <Form
                     method="post">
@@ -123,9 +126,11 @@ export default function LoginRoute() {
                                 {actionData.formError}
                             </p>
                         ) : null}
-                        <Button type="submit" className="mt-4 w-full">
+                        <SubmitButton 
+                        className="mt-4 w-full" 
+                        isSubmitting={navigation.state === "submitting"}>
                             Log in
-                        </Button>
+                        </SubmitButton>
                         <span className="mt-4 text-sm flex items-center">
                             Don't have an account yet? &nbsp;
                             <Link 
