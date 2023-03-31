@@ -1,6 +1,6 @@
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Link, useActionData, useCatch } from "@remix-run/react";
+import { Form, Link, useActionData, useCatch } from "@remix-run/react";
 import { Button } from "flowbite-react";
 import { ErrorWithOptionalContent } from "~/components/ErrorWithOptionalContent";
 import { FormInputWithLabel } from "~/components/FormInputWithLabel";
@@ -61,7 +61,7 @@ export default function NewPostRoute() {
     return (
         <div
         className="flex flex-col w-screen sm:max-w-[500px]">
-            <form
+            <Form
             method="post">
                 <FormInputWithLabel
                     id="title"
@@ -89,7 +89,7 @@ export default function NewPostRoute() {
                 <Button type="submit">
                     Add
                 </Button>
-            </form>
+            </Form>
         </div>
     )
 }

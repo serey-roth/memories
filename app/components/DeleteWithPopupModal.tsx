@@ -1,3 +1,4 @@
+import { Form } from "@remix-run/react";
 import { Button, Modal } from "flowbite-react";
 import { useToggle } from "~/utils/useToggle";
 
@@ -34,7 +35,7 @@ export const DeleteWithPopupModal = ({
                         Are you sure you want to delete this item?
                     </h3>
                     <div className="flex justify-center gap-4">
-                    <form
+                    <Form
                     method="post"
                     action={`/posts/${idToBeDeleted}`}>
                         <Button
@@ -45,7 +46,7 @@ export const DeleteWithPopupModal = ({
                         >
                             Yes, I'm sure
                         </Button>
-                    </form>
+                    </Form>
                     <Button
                         color="gray"
                         onClick={toggle}

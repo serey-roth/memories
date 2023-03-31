@@ -1,6 +1,6 @@
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Link, useActionData, useLoaderData, useSearchParams } from "@remix-run/react";
+import { Form, Link, useActionData, useLoaderData, useSearchParams } from "@remix-run/react";
 import bcrypt from "bcryptjs";
 import { Button } from "flowbite-react";
 import { FormInputWithLabel } from "~/components/FormInputWithLabel";
@@ -96,7 +96,7 @@ export default function LoginRoute() {
                     <h1 className="text-lg font-bold mb-4">
                         Log in to your account
                     </h1>
-                    <form
+                    <Form
                     method="post">
                         <input 
                         type="hidden"
@@ -134,7 +134,7 @@ export default function LoginRoute() {
                                 Register
                             </Link>
                         </span>
-                    </form>
+                    </Form>
                 </div>
             </div>
         </div>

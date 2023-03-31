@@ -1,6 +1,6 @@
 import type { ActionArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
-import { Link, useActionData } from "@remix-run/react";
+import { Form, Link, useActionData } from "@remix-run/react";
 import bcrypt from "bcryptjs";
 import { Button } from "flowbite-react";
 import { FormInputWithLabel } from "~/components/FormInputWithLabel";
@@ -89,7 +89,7 @@ export default function LoginRoute() {
                     <h1 className="text-lg font-bold mb-4">
                         Register an account
                     </h1>
-                    <form
+                    <Form
                     method="post">
                         <FormInputWithLabel
                             id="username"
@@ -138,7 +138,7 @@ export default function LoginRoute() {
                                 Login
                             </Link>
                         </span>
-                    </form>
+                    </Form>
                 </div>
             </div>
         </div>
